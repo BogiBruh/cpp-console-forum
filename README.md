@@ -8,7 +8,6 @@ At the start of the program it checks if the "database file" exists, and if it d
 So far it only displays the posts made by hand by me for testing.
 
 ## What will be added
-- rework to the loading algorithm for replies. For now it only lists direct replies, and it needs to also support replies to replies
 - a function to create your own posts & replies
 - creating/deleting(?) accounts
 
