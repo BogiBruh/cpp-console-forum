@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fstream>
-#include "prj-seminarski.h"
 
 using namespace std;
 
@@ -23,8 +22,8 @@ int main()
 {
     int izbor, izbor2, indeksNiza = 0, pomocniUpis = 0, brLinija = 0;
     char izborUPostu;
-    string nazivFajla = "input.txt", tekstFajla, pomocniString;
-    post *seksibojs;
+    string nazivFajla = "posts.txt", tekstFajla, pomocniString;
+    post* seksibojs;
 
     fstream txtBaza(nazivFajla, ios::out | ios::_Nocreate);
 
@@ -49,7 +48,7 @@ int main()
             exit(1);
         }
 
-        
+
         while (getline(txtBaza, tekstFajla)) {
 
             for (int i = 0; i < tekstFajla.length(); i++) {
@@ -82,8 +81,8 @@ int main()
             indeksNiza++;
             pomocniUpis = 0;
         }
-       
-        glavniLoop:
+
+    glavniLoop:
         while (1) {
             system("cls");
             cout << "Dobrodosli na forum! Izaberite koju cete opciju: " << endl;
@@ -93,13 +92,15 @@ int main()
 
             cin >> izbor;
             system("cls");
-            prikazaniPostovi:
+        prikazaniPostovi:
             switch (izbor) {
             case 1:
                 system("cls");
                 for (int i = brLinija - 1; i >= 0; i--) {
-                    if (seksibojs[i].idRoditelja == 0) seksibojs[i].nacrtajPost();
-                    cout << endl;
+                    if (seksibojs[i].idRoditelja == 0) {
+                        seksibojs[i].nacrtajPost();
+                        cout << endl;
+                    }
                 }
 
                 cout << endl << endl << "Ako zelite da se vratite na main menu upisite 0. Ako zelite da vidite neki post upisite njegov broj:";
@@ -108,7 +109,8 @@ int main()
                 if (izbor2 == 0) goto glavniLoop;
                 else {
                     system("cls");
-                    prikaziPost(seksibojs, izbor2, brLinija);
+                    seksibojs[izbor2 - 1].nacrtajPost();
+                    prikaziPost(seksibojs, izbor2 - 1, brLinija);
                 }
                 cout << "Da li biste zeleli da se vratite na proslu stranu? y - da, r - reply na post ";
                 cin >> izborUPostu;
@@ -136,7 +138,7 @@ int main()
             }
         }
     }
-    
+
 
     txtBaza.close();
     return 0;
@@ -146,7 +148,7 @@ void post::nacrtajPost() {
     int x = 7, y = 80, pom = 0, idPostaFlag = 0, naslovFlag = 0;
     int duzina = tekstPosta.length();
     string postIDstring = "Post br." + to_string(idPosta);
-    
+
 
     if (ceil((double)duzina / (y - 4)) > x - 2) {
         if ((y - 4) * (x - 3) < duzina) {
@@ -285,9 +287,12 @@ void post::nacrtajReply() {
 
 void prikaziPost(post* listaPostova, int postBr, int brClanovaNiza) {
     int i;
-    listaPostova[postBr - 1].nacrtajPost();
 
-    for(i = 0; i < brClanovaNiza; i++) {
-        if (listaPostova[i].idRoditelja == postBr) listaPostova[i].nacrtajReply();
+    for (i = 0; i < brClanovaNiza; i++) {
+        if (listaPostova[i].idRoditelja == postBr + 1) {
+            listaPostova[i].nacrtajReply();
+            prikaziPost(listaPostova, i, brClanovaNiza);
+        }
+
     }
 }
