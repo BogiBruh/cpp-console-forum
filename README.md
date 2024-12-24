@@ -5,10 +5,10 @@ This is a project for a C++ course im doing, its a forum running in a console wi
 ## What does it do
 So far all instructions are in serbian.
 At the start of the program it checks if the "database file" exists, and if it doesnt it asks you whether to create it.
-So far it only displays the posts made by hand by me for testing.
+So far it only displays the posts made by hand by me for testing, and you can also post stuff.
 
 ## What will be added
-- a function to create your own posts & replies
+- creating a function for posting, so that it can be used in both replies and to create a post,
 - creating/deleting(?) accounts
 
 After the project is done and submitted i will reformat the code as it is currently as spaghetti as possible, and i dont see a way to improve it yet. However i see it being possible.
