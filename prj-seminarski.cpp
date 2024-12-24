@@ -29,7 +29,7 @@ int main()
 
     if (!txtBaza.is_open()) {
         cout << "Nema baze, da li zelite da je napravite? 1. Da, 2. Ne ";
-        std::cin >> izbor;
+        cin >> izbor;
         if (izbor == 1) {
             fstream txtBaza(nazivFajla, ios::out);
         }
@@ -204,14 +204,14 @@ void post::nacrtajPost() {
     for (int i = 0; i < x; i++) {
         for (int j = 0; j < y; j++) {
             if (i == 0 || i == x - 1) {
-                std::cout << "#";
+                cout << "#";
             }
             else {
                 if (j == 0 || j == y - 1) {
-                    std::cout << "#";
+                    cout << "#";
                 }
                 else if (j == 1 || j == y - 2) {
-                    std::cout << " ";
+                    cout << " ";
                 }
                 else {
                     if (i == 1) {
@@ -236,28 +236,28 @@ void post::nacrtajPost() {
                         if (j == 2 && tekstPosta[pom] == ' ') {
                             if (duzina != pom) {
                                 pom++;
-                                std::cout << tekstPosta[pom];
+                                cout << tekstPosta[pom];
                                 pom++;
 
                             }
                             else {
-                                std::cout << " ";
+                                cout << " ";
                             }
                         }
                         else {
                             if (duzina != pom) {
-                                std::cout << tekstPosta[pom];
+                                cout << tekstPosta[pom];
                                 pom++;
                             }
                             else {
-                                std::cout << " ";
+                                cout << " ";
                             }
                         }
                     }
                 }
             }
         }
-        std::cout << endl;
+        cout << endl;
     }
 }
 
@@ -279,14 +279,14 @@ void post::nacrtajReply() {
         cout << "\t\t";
         for (int j = 0; j < y; j++) {
             if (i == 0 || i == x - 1) {
-                std::cout << "#";
+                cout << "#";
             }
             else {
                 if (j == 0 || j == y - 1) {
-                    std::cout << "#";
+                    cout << "#";
                 }
                 else if (j == 1 || j == y - 2) {
-                    std::cout << " ";
+                    cout << " ";
                 }
                 else {
                     if (i == 1) {
@@ -302,28 +302,28 @@ void post::nacrtajReply() {
                         if (j == 2 && tekstPosta[pom] == ' ') {
                             if (duzina != pom) {
                                 pom++;
-                                std::cout << tekstPosta[pom];
+                                cout << tekstPosta[pom];
                                 pom++;
 
                             }
                             else {
-                                std::cout << " ";
+                                cout << " ";
                             }
                         }
                         else {
                             if (duzina != pom) {
-                                std::cout << tekstPosta[pom];
+                                cout << tekstPosta[pom];
                                 pom++;
                             }
                             else {
-                                std::cout << " ";
+                                cout << " ";
                             }
                         }
                     }
                 }
             }
         }
-        std::cout << endl;
+        cout << endl;
     }
 }
 
