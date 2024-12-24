@@ -20,30 +20,37 @@ void prikaziPost(post* listaPostova, int postBr, int brClanovaNiza);
 
 int main()
 {
-    int izbor, izbor2, indeksNiza = 0, pomocniUpis = 0, brLinija = 0;
+    int izbor, izbor2, indeksNiza = 0, pomocniUpis = 0, brLinija = 0, brLinijaNaPocetku;
     char izborUPostu;
     string nazivFajla = "posts.txt", tekstFajla, pomocniString;
-    post* seksibojs;
+    post* postArray = nullptr, * pomPostArray;
 
-    fstream txtBaza(nazivFajla, ios::out | ios::_Nocreate);
+    fstream txtBaza(nazivFajla, ios::in | ios::out | ios::_Nocreate);
 
     if (!txtBaza.is_open()) {
         cout << "Nema baze, da li zelite da je napravite? 1. Da, 2. Ne ";
-        cin >> izbor;
+        std::cin >> izbor;
         if (izbor == 1) {
-            fstream txtBaza(nazivFajla);
+            fstream txtBaza(nazivFajla, ios::out);
         }
-        else exit(1);
+        else {
+            exit(1);
+        }
+
+        txtBaza.close();
+        fstream txtBaza(nazivFajla, ios::in | ios::out);
     }
     else {
+        imaFajla:
         while (getline(txtBaza, tekstFajla)) {
             brLinija++;
         }
+        brLinijaNaPocetku = brLinija;
         txtBaza.close();
         fstream txtBaza(nazivFajla);
 
-        seksibojs = new post[brLinija];
-        if (seksibojs == NULL) {
+        postArray = new post[brLinija];
+        if (postArray == NULL) {
             cout << "greska u dodeli memorije, pokusajte ponovo" << endl;
             exit(1);
         }
@@ -56,17 +63,17 @@ int main()
                     switch (pomocniUpis) {
                     case 0:
                         pomocniString += tekstFajla[i];
-                        seksibojs[indeksNiza].idPosta = stoi(pomocniString);
+                        postArray[indeksNiza].idPosta = stoi(pomocniString);
                         break;
                     case 1:
                         pomocniString += tekstFajla[i];
-                        seksibojs[indeksNiza].idRoditelja = stoi(pomocniString);
+                        postArray[indeksNiza].idRoditelja = stoi(pomocniString);
                         break;
                     case 2:
-                        seksibojs[indeksNiza].naslov += tekstFajla[i];
+                        postArray[indeksNiza].naslov += tekstFajla[i];
                         break;
                     case 3:
-                        seksibojs[indeksNiza].tekstPosta += tekstFajla[i];
+                        postArray[indeksNiza].tekstPosta += tekstFajla[i];
                         break;
                     default:
                         break;
@@ -97,8 +104,8 @@ int main()
             case 1:
                 system("cls");
                 for (int i = brLinija - 1; i >= 0; i--) {
-                    if (seksibojs[i].idRoditelja == 0) {
-                        seksibojs[i].nacrtajPost();
+                    if (postArray[i].idRoditelja == 0) {
+                        postArray[i].nacrtajPost();
                         cout << endl;
                     }
                 }
@@ -109,8 +116,8 @@ int main()
                 if (izbor2 == 0) goto glavniLoop;
                 else {
                     system("cls");
-                    seksibojs[izbor2 - 1].nacrtajPost();
-                    prikaziPost(seksibojs, izbor2 - 1, brLinija);
+                    postArray[izbor2 - 1].nacrtajPost();
+                    prikaziPost(postArray, izbor2 - 1, brLinija);
                 }
                 cout << "Da li biste zeleli da se vratite na proslu stranu? y - da, r - reply na post ";
                 cin >> izborUPostu;
@@ -126,9 +133,45 @@ int main()
                 }
 
                 break;
-            case 2:
-                cout << "Lol zasto mislis da to postoji" << endl;
+            case 2: {
+                brLinija++;
+                pomPostArray = new post[brLinija];
+
+                for (int i = 0; i < (brLinija - 1); i++) {
+                    pomPostArray[i] = postArray[i];
+                }
+
+                delete[] postArray;
+                postArray = new post[brLinija];
+
+                for (int i = 0; i < (brLinija - 1); i++) {
+                    postArray[i] = pomPostArray[i];
+                }
+
+                delete[] pomPostArray;
+
+                cout << "Unesite naslov vaseg posta:" << endl;
+                cin.ignore();
+                getline(cin, postArray[brLinija - 1].naslov);
+
+                cout << endl << "Unesite tekst posta:" << endl;
+                getline(cin, postArray[brLinija - 1].tekstPosta);
+                postArray[brLinija - 1].idPosta = brLinija;
+                postArray[brLinija - 1].idRoditelja = 0;
+
+                txtBaza.close();
+                fstream txtBaza(nazivFajla, ios::out | ios::app);
+
+                if (txtBaza.is_open()) {
+                    pomocniString = "\n" + to_string(postArray[brLinija - 1].idPosta) + "|" + to_string(postArray[brLinija - 1].idRoditelja) + "|" + postArray[brLinija - 1].naslov + "|" + postArray[brLinija - 1].tekstPosta;
+                }
+
+                txtBaza << pomocniString;
+                txtBaza.close();
+                txtBaza.open(nazivFajla);
+
                 break;
+            }
             case 3:
                 exit(1);
                 break;
@@ -138,7 +181,6 @@ int main()
             }
         }
     }
-
 
     txtBaza.close();
     return 0;
