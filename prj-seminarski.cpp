@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <fstream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,23 +16,27 @@ public:
 
     void nacrtajPost();
     void nacrtajReply();
+    string napraviPost(int idPost, int idRoditelj);
+    string napraviReply(int idPost, int idRoditelj);
 };
 
-void prikaziPost(post* listaPostova, int postBr, int brClanovaNiza);
+void prikaziPost(post* listaPostova, int postBr, int brClanovaNiza, vector<int> &queueReplyova);
 
 int main()
 {
-    int izbor, izbor2, indeksNiza = 0, pomocniUpis = 0, brLinija = 0, brLinijaNaPocetku;
-    char izborUPostu;
+    int izborPravljenjeFajla, izbor, indeksNiza = 0, pomocniUpis = 0, brLinija = 0, brLinijaNaPocetku;
     string nazivFajla = "posts.txt", tekstFajla, pomocniString;
     post* postArray = nullptr, * pomPostArray;
+    vector<int> queueReplyova;
 
+    cout << "Ostvarivanje konekcije sa fajlom..." << endl;
     fstream txtBaza(nazivFajla, ios::in | ios::out | ios::_Nocreate);
 
+    proveraStanjaFajla:
     if (!txtBaza.is_open()) {
         cout << "Nema baze, da li zelite da je napravite? 1. Da, 2. Ne ";
-        cin >> izbor;
-        if (izbor == 1) {
+        cin >> izborPravljenjeFajla;
+        if (izborPravljenjeFajla == 1) {
             fstream txtBaza(nazivFajla, ios::out);
         }
         else {
@@ -39,6 +45,7 @@ int main()
 
         txtBaza.close();
         fstream txtBaza(nazivFajla, ios::in | ios::out);
+        goto proveraStanjaFajla;
     }
     else {
         imaFajla:
@@ -98,10 +105,17 @@ int main()
             cout << "3. izadjite iz programa" << endl;
 
             cin >> izbor;
+            if (cin.fail()) { // ako se unese karakter na primer program se zbuni i ispisuje konstantno sve iz while loopa, ovo je ciscenje unosa i vracanje nazad
+                cin.clear();
+                cin.ignore();
+                goto glavniLoop;
+            }
+
             system("cls");
-        prikazaniPostovi:
+        
             switch (izbor) {
             case 1:
+            prikazaniPostovi:
                 system("cls");
                 for (int i = brLinija - 1; i >= 0; i--) {
                     if (postArray[i].idRoditelja == 0) {
@@ -110,26 +124,68 @@ int main()
                     }
                 }
 
-                cout << endl << endl << "Ako zelite da se vratite na main menu upisite 0. Ako zelite da vidite neki post upisite njegov broj:";
+                otvoriPost:
+                cout << endl <<  "Ako zelite da se vratite na main menu upisite 0. Ako zelite da vidite neki post upisite njegov broj: ";
 
-                cin >> izbor2;
-                if (izbor2 == 0) goto glavniLoop;
-                else {
-                    system("cls");
-                    postArray[izbor2 - 1].nacrtajPost();
-                    prikaziPost(postArray, izbor2 - 1, brLinija);
+                cin >> izbor;
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore();
+                    goto otvoriPost;
                 }
-                cout << "Da li biste zeleli da se vratite na proslu stranu? y - da, r - reply na post ";
-                cin >> izborUPostu;
+                if (izbor == 0) goto glavniLoop;
+                else if(izbor < brLinija){
+                    system("cls");
+                    postArray[izbor - 1].nacrtajPost();
+                    queueReplyova.clear();
+                    prikaziPost(postArray, izbor - 1, brLinija, queueReplyova);
+                    sort(queueReplyova.begin(), queueReplyova.end());
+                    for (int x = 0; x < queueReplyova.size(); x++) {
+                        postArray[queueReplyova[x] - 1].nacrtajReply();
+                    }
 
-                switch (izborUPostu) {
-                case 'y': case 'Y':
-                    goto prikazaniPostovi;
-                    break;
-                case 'r': case 'R':
-                    break;
-                default:
-                    break;
+                replyuj:
+                    cout << "Ako zelite da se vratite na proslu stranu upisite 0. Ako zelite da odgovorite na neki od ovih postova upisite njegov broj: ";
+                    cin >> izbor;
+
+                    if (izbor == 0) {
+                        goto prikazaniPostovi;
+                    }
+                    else if (izbor < brLinija - 1) {
+                        brLinija++;
+                        pomPostArray = new post[brLinija];
+
+                        for (int i = 0; i < (brLinija - 1); i++) {
+                            pomPostArray[i] = postArray[i];
+                        }
+
+                        delete[] postArray;
+                        postArray = new post[brLinija];
+
+                        for (int i = 0; i < (brLinija - 1); i++) {
+                            postArray[i] = pomPostArray[i];
+                        }
+
+                        delete[] pomPostArray;
+
+                        pomocniString = postArray[brLinija - 1].napraviReply(brLinija, izbor);
+
+                        txtBaza.close();
+                        fstream txtBaza(nazivFajla, ios::out | ios::app);
+
+                        txtBaza << pomocniString;
+                        txtBaza.close();
+                        txtBaza.open(nazivFajla);
+                        break;
+                    }
+                    else {
+                        cout << "Taj post ne postoji." << endl;
+                        goto replyuj;
+                    }
+                }
+                else {
+                    cout << "Taj post ne postoji." << endl;
+                    goto otvoriPost;
                 }
 
                 break;
@@ -150,39 +206,34 @@ int main()
 
                 delete[] pomPostArray;
 
-                cout << "Unesite naslov vaseg posta:" << endl;
-                cin.ignore();
-                getline(cin, postArray[brLinija - 1].naslov);
-
-                cout << endl << "Unesite tekst posta:" << endl;
-                getline(cin, postArray[brLinija - 1].tekstPosta);
-                postArray[brLinija - 1].idPosta = brLinija;
-                postArray[brLinija - 1].idRoditelja = 0;
+                pomocniString = postArray[brLinija - 1].napraviPost(brLinija, 0);
 
                 txtBaza.close();
                 fstream txtBaza(nazivFajla, ios::out | ios::app);
 
-                if (txtBaza.is_open()) {
-                    pomocniString = "\n" + to_string(postArray[brLinija - 1].idPosta) + "|" + to_string(postArray[brLinija - 1].idRoditelja) + "|" + postArray[brLinija - 1].naslov + "|" + postArray[brLinija - 1].tekstPosta;
-                }
-
                 txtBaza << pomocniString;
                 txtBaza.close();
                 txtBaza.open(nazivFajla);
-
                 break;
             }
             case 3:
-                exit(1);
+                goto kraj;
                 break;
             default:
                 cout << "ti si glupani tupan" << endl;
+                goto glavniLoop;
                 break;
             }
         }
     }
-
+    
+    kraj:
+    cout << "Brisanje djubreta iz memorije...";
+    delete[] postArray;
+    queueReplyova.clear();
+    cout << endl << "Zatvaranje konekcije sa bazom fajlova...";
     txtBaza.close();
+    cout << endl << "Dovidjenja!" << endl;
     return 0;
 }
 
@@ -327,14 +378,51 @@ void post::nacrtajReply() {
     }
 }
 
-void prikaziPost(post* listaPostova, int postBr, int brClanovaNiza) {
+void prikaziPost(post* listaPostova, int postBr, int brClanovaNiza, vector<int> &queueReplyova) {
     int i;
 
     for (i = 0; i < brClanovaNiza; i++) {
         if (listaPostova[i].idRoditelja == postBr + 1) {
-            listaPostova[i].nacrtajReply();
-            prikaziPost(listaPostova, i, brClanovaNiza);
+            queueReplyova.push_back(listaPostova[i].idPosta);
+            prikaziPost(listaPostova, i, brClanovaNiza, queueReplyova);
         }
 
     }
+}
+
+string post::napraviPost(int idPost, int idRoditelj) {
+    string generisaniString = "\n", pom;
+    idPosta = idPost;
+    idRoditelja = idRoditelj;
+    generisaniString += to_string(idPost) + "|" + to_string(idRoditelj);
+
+    cout << "Unesite naslov vaseg posta:" << endl;
+    cin.ignore();
+    getline(cin, pom);
+    naslov = pom;
+    generisaniString += "|" + pom;
+
+    cout << endl << "Unesite tekst posta:" << endl;
+    getline(cin, pom);
+    tekstPosta = pom;
+    generisaniString += "|" + pom;
+
+    return generisaniString;
+}
+
+string post::napraviReply(int idPost, int idRoditelj) {
+    string generisaniString = "\n", pom;
+    idPosta = idPost;
+    idRoditelja = idRoditelj;
+    generisaniString += to_string(idPost) + "|" + to_string(idRoditelj);
+
+    generisaniString += "|";
+
+    cout << endl << "Unesite tekst posta:" << endl;
+    cin.ignore();
+    getline(cin, pom);
+    tekstPosta = pom;
+    generisaniString += "|" + pom;
+
+    return generisaniString;
 }
