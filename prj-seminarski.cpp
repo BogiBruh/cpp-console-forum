@@ -130,9 +130,8 @@ int main()
                     }
                 }
 
-                otvoriPost:
                 cout << endl <<  "Ako zelite da se vratite na main menu upisite 0. Ako zelite da vidite neki post upisite njegov broj: ";
-
+            otvoriPost:
                 cin >> izbor;
                 if (cin.fail()) {
                     cin.clear();
