@@ -7,9 +7,11 @@ So far all instructions are in serbian.
 At the start of the program it checks if the "database file" exists, and if it doesnt it asks you whether to create it.
 So far it only displays the posts made by hand by me for testing, and you can also post and delete stuff. 
 
-## What will be added
-- reworking the delete function to also delete replies,
-- creating/deleting(?) accounts
+## What will be added in the future
+- creating/deleting accounts,
+- multiplayer functionality
 
-After the project is done and submitted i will reformat the code as it is currently as spaghetti as possible, and i dont see a way to improve it yet. However i see it being possible.
-Also adding a way for other people to connect and use it over IP too.
+## Downloading
+You can download the executable in the releases section, or you can click the green button right above the file list and download the zipped source code and stare in awe at how much spaghetti i cooked! Its wonderful, tasty and frankly absolutely indubitably DISGUSTING TO LOOK AT!
+#
+The project is done and submitted so i will probably fix after a few years. Or completely rework it. Who knows? I sure dont.
