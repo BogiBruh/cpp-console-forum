@@ -67,7 +67,7 @@ int main()
 
 
         while (getline(txtBaza, tekstFajla)) { // unos podataka u postArray
-
+            if (tekstFajla == "\n") break; // ima negde neuhvaceni slucaj gde upise u fajl znak za novi red bespotrebno pa cisto da se ne izignorise da se ne napravi post br 0
             for (int i = 0; i < tekstFajla.length(); i++) {
                 if (tekstFajla[i] != '|') { // for loop ide karakter po karakter do znaka | jer je format upisa u fajlu
                     switch (pomocniUpis) {  // idPosta|idRoditelja|naslov|tekstPosta
@@ -502,7 +502,7 @@ void izbrisiPost(post *&listaPostova, int idPost, int &brLinija, vector<int>& qu
         }
     }
     nadjiReplyove(listaPostova, idPost, brLinija, queue);
-    for (int i = 0; i < brLinija - 1; i++) {
+    for (int i = 0; i < brLinija; i++) {
         if (countSkraceno(listaPostova[i].idPosta, queue) == 0) { // prepisuje u pomPostArray sve postove koji nisu u queue-u, i pravi brojac koji ce biti novi brLinija
             pomPostArray[brojac] = listaPostova[i];
             brojac++;
